@@ -3,7 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  BASE_URL: 'https://alchera-face-authentication.p.rapidapi.com/v1/face',
+  X_RAPID_API_KEY: 'your-rapid-api-key-here',
+  X_RAPID_API_HOST: 'alchera-face-authentication.p.rapidapi.com',
 };
 
 /*
