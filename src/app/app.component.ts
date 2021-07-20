@@ -1,124 +1,109 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { AppService } from './app.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  template: `
-    <main>
-      <section *ngIf="processing" class="progress">
-        <mat-progress-bar
-          style="margin: 0 10px"
-          color="primary"
-          mode="indeterminate"
-          value="50"
-        >
-        </mat-progress-bar>
-      </section>
-      <section class="content">
-        <div>
-          <input
-            #imagePicker
-            type="file"
-            accept="image/*"
-            hidden
-            (change)="preview()"
-          />
-          <button mat-raised-button (click)="imagePicker.click()">
-            Pick image
-          </button>
-          <button mat-raised-button color="primary" (click)="run('REGISTER')">
-            Register face
-          </button>
-          <button mat-raised-button color="primary" (click)="run('UPDATE')">
-            Update face
-          </button>
-          <button mat-raised-button color="accent" (click)="run('COMPARE')">
-            Compare face
-          </button>
-          <button mat-raised-button color="accent" (click)="run('RECOGNISE')">
-            Recognise face
-          </button>
-          <button mat-raised-button color="warn" (click)="run('DELETE')">
-            Delete profile
-          </button>
-        </div>
-        <div *ngIf="previewing">
-          <mat-card>
-            <img [src]="src" [alt]="alt" />
-          </mat-card>
-        </div>
-      </section>
-    </main>
-  `,
-  styles: [
-    `
-      .progress {
-        position: absolute;
-        width: 100vw;
-        display: flex;
-        align-content: center;
-        align-items: center;
-        height: 60px;
-      }
-
-      .content {
-        padding: 5rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
-
-      button {
-        margin: 0 1rem;
-      }
-
-      div {
-        margin: 1rem 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      img {
-        width: 20rem;
-        height: 20rem;
-        object-fit: cover;
-      }
-    `,
-  ],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   @ViewChild('imagePicker') imagePicker!: ElementRef;
   title = 'alchera-face-authentication';
   src!: string | ArrayBuffer | null;
-  alt = '';
+  alt!: string | null;
   previewing = false;
   processing = false;
+  streaming = false;
 
-  constructor(private service: AppService, public snackBar: MatSnackBar) {}
+  video!: HTMLVideoElement;
+  canvas!: HTMLCanvasElement;
+  stream!: MediaStream | null;
+  img!: File;
+  //
+  // @ViewChild('video') video!: ElementRef;
+  // @ViewChild('canvas') canvas!: ElementRef;
+
+  constructor(
+    private service: AppService,
+    public snackBar: MatSnackBar,
+    private datePipe: DatePipe
+  ) {}
+
+  @ViewChild('video') set v(el: ElementRef) {
+    this.video = el.nativeElement;
+  }
+
+  @ViewChild('canvas') set c(el: ElementRef) {
+    this.canvas = el.nativeElement;
+  }
 
   ngOnInit(): void {}
 
+  ngAfterViewInit(): void {}
+
   preview(): void {
     this.previewing = true;
-    for (const img of this.imagePicker.nativeElement.files) {
-      const reader = new FileReader();
-      const alt = img.name;
-      reader.onload = () => {
-        this.src = reader.result;
-        this.alt = alt;
-      };
-      reader.readAsDataURL(img);
+    this.stream = null;
+    this.streaming = false;
+    this.readImage(this.imagePicker.nativeElement.files[0]);
+  }
+
+  webcam(): void {
+    this.previewing = false;
+
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(
+        (stream: MediaStream) => {
+          this.stream = stream;
+          this.streaming = true;
+        },
+        (e) => console.error(e)
+      );
+      this.video
+        .play()
+        .then(() => {
+          this.canvas
+            .getContext('2d')
+            ?.drawImage(this.video, 0, 0, 64 * 4, 48 * 4);
+
+          this.canvas.toBlob((blob) => {
+            this.img = new File(
+              [blob as Blob],
+              `IMG_${this.datePipe.transform(
+                new Date(),
+                'yyyyMMdd'
+              )}_${Math.floor(Math.random() * 1000000)}.png`,
+              { type: (blob as Blob).type }
+            );
+            this.readImage(this.img);
+          });
+        })
+        .then(() => {
+          setTimeout(() => {
+            this.previewing = true;
+            this.stream = null;
+            this.streaming = false;
+          }, 3000);
+        });
     }
   }
 
   run(type: string): void {
     this.processing = true;
     const data = new FormData();
-    const face = this.imagePicker.nativeElement.files[0];
-    data.append('image', face);
+
+    if (this.img === undefined) {
+      this.img = this.imagePicker.nativeElement.files[0];
+    }
+    data.append('image', this.img);
 
     switch (type) {
       case 'REGISTER':

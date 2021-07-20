@@ -1,0 +1,55 @@
+<main>
+  <section *ngIf="processing" class="progress">
+    <mat-progress-bar
+      style="margin: 0 10px"
+      color="primary"
+      mode="indeterminate"
+      value="50"
+    >
+    </mat-progress-bar>
+  </section>
+  <section class="content">
+    <div>
+      <input
+        #imagePicker
+        type="file"
+        accept="image/*"
+        hidden
+        (change)="preview()"
+      />
+      <button mat-raised-button (click)="imagePicker.click()">
+        Choose image
+      </button>
+      <button mat-raised-button (click)="webcam()">Take picture</button>
+      <button mat-raised-button color="primary" (click)="run('REGISTER')">
+        Register face
+      </button>
+      <button mat-raised-button color="primary" (click)="run('UPDATE')">
+        Update face
+      </button>
+      <button mat-raised-button color="accent" (click)="run('COMPARE')">
+        Compare face
+      </button>
+      <button mat-raised-button color="accent" (click)="run('RECOGNISE')">
+        Recognise face
+      </button>
+      <button mat-raised-button color="warn" (click)="run('DELETE')">
+        Delete profile
+      </button>
+    </div>
+    <div>
+      <mat-card *ngIf="previewing">
+        <img [src]="src" [alt]="alt"/>
+      </mat-card>
+      <mat-card [class.hidden]="!streaming||previewing">
+        <video
+          #video
+          autoplay
+          muted
+          [srcObject]="stream"
+        ></video>
+        <canvas #canvas class="hidden"></canvas>
+      </mat-card>
+    </div>
+  </section>
+</main>
