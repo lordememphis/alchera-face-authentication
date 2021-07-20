@@ -166,6 +166,15 @@ export class AppComponent implements OnInit {
     }
   }
 
+  private readImage(img: File): void {
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.src = reader.result;
+      this.alt = img.name;
+    };
+    reader.readAsDataURL(img);
+  }
+
   private openSnackBar(message: string, action: string): void {
     this.processing = false;
     this.snackBar.open(message, action, {

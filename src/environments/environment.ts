@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   BASE_URL: 'https://alchera-face-authentication.p.rapidapi.com/v1/face',
-  X_RAPID_API_KEY: 'your-rapid-api-key-here',
+  X_RAPID_API_KEY: 'cee64a8bedmsh00cf064a1afd3bbp1944adjsnafd554993052',
   X_RAPID_API_HOST: 'alchera-face-authentication.p.rapidapi.com',
 };
 
