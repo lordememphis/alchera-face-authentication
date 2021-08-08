@@ -27,9 +27,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   canvas!: HTMLCanvasElement;
   stream!: MediaStream | null;
   img!: File;
-  //
-  // @ViewChild('video') video!: ElementRef;
-  // @ViewChild('canvas') canvas!: ElementRef;
 
   constructor(
     private service: AppService,
