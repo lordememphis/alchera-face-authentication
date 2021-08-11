@@ -1,10 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { AppService } from './app.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DatePipe } from '@angular/common';
@@ -14,7 +8,7 @@ import { DatePipe } from '@angular/common';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
 })
-export class AppComponent implements OnInit, AfterViewInit {
+export class AppComponent {
   @ViewChild('imagePicker') imagePicker!: ElementRef;
   title = 'alchera-face-authentication';
   src!: string | ArrayBuffer | null;
@@ -41,10 +35,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   @ViewChild('canvas') set c(el: ElementRef) {
     this.canvas = el.nativeElement;
   }
-
-  ngOnInit(): void {}
-
-  ngAfterViewInit(): void {}
 
   preview(): void {
     this.previewing = true;

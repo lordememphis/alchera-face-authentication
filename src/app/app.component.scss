@@ -1,4 +1,5 @@
- .progress, .content, {
+.progress,
+.content {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -25,7 +26,9 @@ main {
         margin: 0 1rem;
       }
 
-      img, video, canvas {
+      img,
+      video,
+      canvas {
         width: 20rem;
         height: 20rem;
         object-fit: cover;
